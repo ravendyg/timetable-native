@@ -1,10 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.venomyd.nopay.timetable"
+    package="com.venomyd.nopay.timetable.q"
     android:versionCode="4"
     android:versionName="1.2.1">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!--<uses-permission android:name="android.permission.READ_PHONE_STATE" tools:node="remove"/>-->
 
     <uses-sdk

@@ -12,7 +12,7 @@ import {
   View
 } from 'react-native';
 
-export default class venomyd.nopay.timetable extends Component {
+export default class venomyd.nopay.timetable.q extends Component {
   render() {
     return (
       <View style={styles.container}>
@@ -50,4 +50,4 @@ const styles = StyleSheet.create({
   },
 });
 
-AppRegistry.registerComponent('venomyd.nopay.timetable', () => venomyd.nopay.timetable);
+AppRegistry.registerComponent('venomyd.nopay.timetable.q', () => venomyd.nopay.timetable.q);

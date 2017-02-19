@@ -4,24 +4,44 @@ import React, { Component } from 'react';
 import {
   StyleSheet,
   View,
-  Text
+  Text,
+  TextInput
 } from 'react-native';
 
 
 const styles = StyleSheet.create({
   container: {
-    height: 50,
+    height: 60,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row'
   },
+  input: {
+    borderWidth: 0,
+    height: 50,
+    fontSize: 16,
+    flex: 1,
+    marginLeft:  10,
+    marginRight: 10,
+  }
 });
 
-export class Search extends React.Component {
-
-  constructor() {
+export class Search extends React.Component
+{
+  constructor()
+  {
     super();
 
     this.state =
     {
     };
+
+    this.onChange = this.onChange.bind(this);
+  }
+
+  onChange(val)
+  {
+
   }
 
 
@@ -39,7 +59,10 @@ export class Search extends React.Component {
   {
     return (
       <View style={styles.container}>
-        <Text>search input</Text>
+        <TextInput
+          style={styles.input}
+          placeholder={'Группа, фамилия, аудитория'}
+        />
       </View>
     );
   }

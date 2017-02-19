@@ -5,7 +5,7 @@ import { Actions } from './action-creators';
 
 const app =
   combineReducers({
-    searchList, searchHistory
+    searchList, searchHistory, connection, syncStatus
   });
 
 const Store = createStore(app);
@@ -35,6 +35,27 @@ function searchHistory(state = null, action)
   }
 }
 
+function connection(state = false, action)
+{
+  switch (action.type)
+  {
+    case Actions.CONNECTION_CHANGE:
+      return action.payload;
+    default:
+      return state;
+  }
+}
+
+function syncStatus(state = 'in progress', action)
+{
+  switch (action.type)
+  {
+    case Actions.SYNC_STATUS_CHANGE:
+      return action.payload;
+    default:
+      return state;
+  }
+}
 
 module.exports =
 {

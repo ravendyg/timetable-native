@@ -1,4 +1,4 @@
-package com.venomyd.nopay.timetable;
+package com.venomyd.nopay.timetable.q;
 
 import com.facebook.react.ReactActivity;
 
@@ -10,6 +10,6 @@ public class MainActivity extends ReactActivity {
      */
     @Override
     protected String getMainComponentName() {
-        return "venomyd.nopay.timetable";
+        return "venomyd.nopay.timetable.q";
     }
 }

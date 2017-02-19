@@ -17,18 +17,7 @@ import { List } from './components/list';
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    alignItems: 'center',
-  },
-  input: {
-
-  },
-  list: {
-
+    flex: 1
   },
   spinnerStyle: {
     color: '#1A237E'
@@ -42,10 +31,12 @@ export class App extends React.Component {
 
     this.state =
     {
-      showSpinner: true,
+      mode: 'loading',
       history: null,
       list: null
     };
+
+    this.fetchListAndHistory = this.fetchListAndHistory.bind(this);
   }
 
   fetchListAndHistory()
@@ -65,9 +56,13 @@ export class App extends React.Component {
       newState = Object.assign(newState || {}, {list});
     }
 
-    if (this.state.showSpinner && !this.list && !this.history)
+    if (Store.getState().syncStatus === 'error' && !this.list)
+    { // no data, no connection
+      newState = Object.assign(newState || {}, {mode: 'error'});
+    }
+    else if (this.state.mode !== 'loaded' && this.list)
     {
-      newState = Object.assign(newState || {}, {showSpinner: false});
+      newState = Object.assign(newState || {}, {mode: 'loaded'});
     }
 
     if (newState)
@@ -78,10 +73,8 @@ export class App extends React.Component {
 
   componentDidMount()
   {
-    setTimeout(
-      () => this.setState({showSpinner: false}),
-      3000
-    );
+    Store.subscribe(this.fetchListAndHistory);
+    this.fetchListAndHistory();
   }
 
   componentWillUnmount()
@@ -91,14 +84,32 @@ export class App extends React.Component {
 
 
   render() {
-    let view = this.state.showSpinner
-      ? <View style={styles.container}>
-          <Spinner visible={true} textContent={"Загружаю расписание..."} textStyle={styles.spinnerStyle} />
-        </View>
-      : <View style={styles.container}>
-          <Search />
-          <List />
-        </View>
+    let view;
+    // debugger;
+    switch (this.state.mode)
+    {
+      case 'loading':
+        view =
+          <View style={styles.container}>
+            <Spinner visible={true} textContent={"Загружаю расписание..."} textStyle={styles.spinnerStyle} />
+          </View>;
+      break;
+
+      case 'loaded':
+        view =
+          <View style={styles.container}>
+            <Search />
+            <List />
+          </View>;
+      break;
+
+      default:
+        view =
+          <View style={styles.container}>
+            <Text>Error</Text>
+          </View>;
+    };
+
     return (
       view
     );
