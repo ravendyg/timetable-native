@@ -11,9 +11,9 @@ import {
 
 const styles = StyleSheet.create({
   container: {
-    height: 48,
-    marginLeft:  16,
-    marginRight: 16,
+    height: 64,
+    paddingLeft:  16,
+    paddingRight: 16,
     justifyContent: 'center'
   },
   text: {
