@@ -32,16 +32,6 @@ export class ListItem extends React.Component {
   }
 
 
-  componentDidMount()
-  {
-  }
-
-  componentWillUnmount()
-  {
-
-  }
-
-
   render()
   {
     return (

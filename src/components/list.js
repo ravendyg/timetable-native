@@ -26,9 +26,9 @@ export class List extends React.Component {
     };
   }
 
-  clickHandler(id)
+  clickHandler(e)
   {
-    console.log(id);
+    this.props.onForward(e.type, e.id);
   }
 
 
@@ -50,7 +50,7 @@ export class List extends React.Component {
           e => <ListItem
                 item={e}
                 key={e.id}
-                clickHandler={this.clickHandler.bind(this, e.id)}
+                clickHandler={this.clickHandler.bind(this, e)}
               />
         )}
       </View>

@@ -122,19 +122,22 @@ function sync(syncTsp)
           .concat(
             (data.groups || []).map(e => ({
               text: e,
-              id: e
+              id: e,
+              type: 'group'
             }))
           )
           .concat(
             (data.places || []).map(e => ({
               text: e,
-              id: e
+              id: e,
+              type: 'place'
             }))
           )
           .concat(
             (data.teachers || []).map(e => ({
               text: e.name,
-              id: e.teacherId
+              id: e.teacherId,
+              type: 'teacher'
             }))
           );
 
@@ -171,13 +174,47 @@ function getSearchHistory()
   .then(
     history =>
     {
+      history = history || [];
       Store.dispatch(
-        ActionCreators.loadSearchHistory(history || [])
+        ActionCreators.loadSearchHistory(history)
       );
       cleanOutdatedHistory({history});
+      syncHistoryItems(history);
     }
   );
 }
+
+function syncHistoryItems(history)
+{
+  for (let item of history)
+  {
+    debugger;
+    fetch(`${config.BASE_URL}/${config.API_VERSION}/sync/${item.type}s?tsp=${item.tsp}&id=${item.id}&apikey=${apiKey}`, {
+      method: 'GET'
+    })
+    .then(resp => resp.json())
+    .then(
+      data =>
+      {
+        debugger;
+        if (data && data.info.length > 0)
+        {
+          let _item = data.info[0];
+          _item.type = item.type;
+          Store.dispatch(
+            ActionCreators.addItem(_item, item[item.type + 'Id'])
+          );
+          AsyncStorage.setItem('@timetable:item:' + item[item.type + 'Id'], JSON.stringify(_item));
+        }
+      }
+    )
+    .catch(err =>
+    {
+      debugger;
+    });
+  }
+}
+
 
 /**
  * will be called only with one of the argument

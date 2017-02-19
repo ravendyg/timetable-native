@@ -9,11 +9,11 @@ import {
 
 import Spinner from 'react-native-loading-spinner-overlay';
 
-import { Store } from './store';
+import { Store } from '../store';
 // import { ActionCreators } from './action-creators';
 
-import { Search } from './components/search';
-import { List } from './components/list';
+import { Search } from './search';
+import { List } from './list';
 
 const styles = StyleSheet.create({
   container: {
@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
   }
 });
 
-export class App extends React.Component {
+export class Main extends React.Component {
 
   constructor() {
     super();
@@ -32,7 +32,8 @@ export class App extends React.Component {
     this.state =
     {
       mode: 'loading',
-      displayedList: []
+      displayedList: [],
+      opacity: 1
     };
 
     this.history = null;
@@ -40,11 +41,12 @@ export class App extends React.Component {
 
     this.query  = '';
 
-    this.fetchListAndHistory = this._fetchListAndHistory.bind(this);
+    this.storeSubscriber = this._storeSubscriber.bind(this);
     this.report = this._report.bind(this);
+    this.onForward = this._onForward.bind(this);
   }
 
-  _fetchListAndHistory()
+  _storeSubscriber()
   {
     let newState;
     let history = Store.getState().searchHistory;
@@ -70,6 +72,11 @@ export class App extends React.Component {
       newState = Object.assign(newState || {}, {mode: 'loaded'});
     }
 
+    if (Store.getState().page === 0 && this.state.opacity === 0)
+    {
+      newState = Object.assign(newState || {}, {opacity: 1});
+    }
+
     if (newState)
     {
       this.setState(newState);
@@ -78,8 +85,8 @@ export class App extends React.Component {
 
   componentDidMount()
   {
-    Store.subscribe(this.fetchListAndHistory);
-    this.fetchListAndHistory();
+    Store.subscribe(this.storeSubscriber);
+    this.storeSubscriber();
   }
 
   componentWillUnmount()
@@ -116,30 +123,36 @@ export class App extends React.Component {
     }
   }
 
+  _onForward(type, index)
+  {
+    this.setState({opacity: 0});
+    this.props.onForward(type, index);
+  }
+
 
   render() {
     let view;
-    // debugger;
+    let containerStyle = {opacity: this.state.opacity, flex: 1};
     switch (this.state.mode)
     {
       case 'loading':
         view =
-          <View style={styles.container}>
+          <View style={containerStyle}>
             <Spinner visible={true} textContent={"Синхронизация..."} textStyle={styles.spinnerStyle} />
           </View>;
       break;
 
       case 'loaded':
         view =
-          <View style={styles.container}>
+          <View style={containerStyle}>
             <Search report={this.report} />
-            <List items={this.state.displayedList}/>
+            <List items={this.state.displayedList} onForward={this.onForward}/>
           </View>;
       break;
 
       default:
         view =
-          <View style={styles.container}>
+          <View style={containerStyle}>
             <Text>Error</Text>
           </View>;
     };

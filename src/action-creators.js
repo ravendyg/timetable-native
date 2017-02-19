@@ -6,6 +6,9 @@ const Actions =
   LOAD_SEARCH_HISTORY: 2,
   CONNECTION_CHANGE: 3,
   SYNC_STATUS_CHANGE: 4,
+  ADD_ITEM: 5,
+  REMOVE_ITEM: 6,
+  NAVIGATION: 7
 };
 
 const ActionCreators = {
@@ -39,7 +42,32 @@ const ActionCreators = {
       type: Actions.SYNC_STATUS_CHANGE,
       payload: status
     }
+  },
+
+  addItem(item, id)
+  {
+    return {
+      type: Actions.ADD_ITEM,
+      payload: {item, id}
+    }
+  },
+
+  removeItem(id)
+  {
+    return {
+      type: Actions.REMOVE_ITEM,
+      payload: id
+    }
+  },
+
+  navigation(page)
+  {
+    return {
+      type: Actions.NAVIGATION,
+      payload: page
+    }
   }
+
 };
 
 module.exports = { Actions, ActionCreators };
