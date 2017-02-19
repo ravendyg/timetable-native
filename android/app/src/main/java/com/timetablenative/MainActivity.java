@@ -1,4 +1,4 @@
-package com.timetablenative;
+package com.venomyd.nopay.timetable;
 
 import com.facebook.react.ReactActivity;
 
@@ -10,6 +10,6 @@ public class MainActivity extends ReactActivity {
      */
     @Override
     protected String getMainComponentName() {
-        return "timetableNative";
+        return "venomyd.nopay.timetable";
     }
 }

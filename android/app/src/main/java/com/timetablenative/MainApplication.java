@@ -1,4 +1,4 @@
-package com.timetablenative;
+package com.venomyd.nopay.timetable;
 
 import android.app.Application;
 import android.util.Log;

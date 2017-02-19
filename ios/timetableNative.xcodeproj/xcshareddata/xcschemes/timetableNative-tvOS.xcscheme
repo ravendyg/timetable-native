@@ -29,9 +29,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "2D02E47A1E0B4A5D006451C7"
-               BuildableName = "timetableNative-tvOS.app"
-               BlueprintName = "timetableNative-tvOS"
-               ReferencedContainer = "container:timetableNative.xcodeproj">
+               BuildableName = "venomyd.nopay.timetable-tvOS.app"
+               BlueprintName = "venomyd.nopay.timetable-tvOS"
+               ReferencedContainer = "container:venomyd.nopay.timetable.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -43,9 +43,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "2D02E48F1E0B4A5D006451C7"
-               BuildableName = "timetableNative-tvOSTests.xctest"
-               BlueprintName = "timetableNative-tvOSTests"
-               ReferencedContainer = "container:timetableNative.xcodeproj">
+               BuildableName = "venomyd.nopay.timetable-tvOSTests.xctest"
+               BlueprintName = "venomyd.nopay.timetable-tvOSTests"
+               ReferencedContainer = "container:venomyd.nopay.timetable.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -61,9 +61,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "2D02E48F1E0B4A5D006451C7"
-               BuildableName = "timetableNative-tvOSTests.xctest"
-               BlueprintName = "timetableNative-tvOSTests"
-               ReferencedContainer = "container:timetableNative.xcodeproj">
+               BuildableName = "venomyd.nopay.timetable-tvOSTests.xctest"
+               BlueprintName = "venomyd.nopay.timetable-tvOSTests"
+               ReferencedContainer = "container:venomyd.nopay.timetable.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -71,9 +71,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2D02E47A1E0B4A5D006451C7"
-            BuildableName = "timetableNative-tvOS.app"
-            BlueprintName = "timetableNative-tvOS"
-            ReferencedContainer = "container:timetableNative.xcodeproj">
+            BuildableName = "venomyd.nopay.timetable-tvOS.app"
+            BlueprintName = "venomyd.nopay.timetable-tvOS"
+            ReferencedContainer = "container:venomyd.nopay.timetable.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -94,9 +94,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2D02E47A1E0B4A5D006451C7"
-            BuildableName = "timetableNative-tvOS.app"
-            BlueprintName = "timetableNative-tvOS"
-            ReferencedContainer = "container:timetableNative.xcodeproj">
+            BuildableName = "venomyd.nopay.timetable-tvOS.app"
+            BlueprintName = "venomyd.nopay.timetable-tvOS"
+            ReferencedContainer = "container:venomyd.nopay.timetable.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -113,9 +113,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2D02E47A1E0B4A5D006451C7"
-            BuildableName = "timetableNative-tvOS.app"
-            BlueprintName = "timetableNative-tvOS"
-            ReferencedContainer = "container:timetableNative.xcodeproj">
+            BuildableName = "venomyd.nopay.timetable-tvOS.app"
+            BlueprintName = "venomyd.nopay.timetable-tvOS"
+            ReferencedContainer = "container:venomyd.nopay.timetable.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

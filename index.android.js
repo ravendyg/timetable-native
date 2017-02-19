@@ -13,7 +13,7 @@ import { App } from './src/app';
 
 import {getListsFromStorage, getSearchHistory} from './src/actions';
 
-export default class timetableNative extends Component {
+export default class timetable extends Component {
   render() {
     return (
       <App />
@@ -40,4 +40,4 @@ export default class timetableNative extends Component {
 //   },
 // });
 
-AppRegistry.registerComponent('timetableNative', () => timetableNative);
+AppRegistry.registerComponent('venomyd.nopay.timetable', () => timetable);
