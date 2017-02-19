@@ -6,7 +6,7 @@ import {
   View,
   Text
 } from 'react-native';
-
+import { ListItem } from './list-item';
 
 const styles = StyleSheet.create({
   container: {
@@ -26,6 +26,11 @@ export class List extends React.Component {
     };
   }
 
+  clickHandler(id)
+  {
+    console.log(id);
+  }
+
 
   componentDidMount()
   {
@@ -41,7 +46,13 @@ export class List extends React.Component {
   {
     return (
       <View style={styles.container}>
-        <Text>search list</Text>
+        {this.props.items && this.props.items.map(
+          e => <ListItem
+                item={e}
+                key={e.id}
+                clickHandler={this.clickHandler.bind(this, e.id)}
+              />
+        )}
       </View>
     );
   }

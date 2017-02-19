@@ -7,6 +7,29 @@ import { config } from './config';
 
 import { Store } from './store';
 
+let apiKey;
+function getAPIKey()
+{
+  return AsyncStorage.getItem('@timetable:apikey')
+  .then(
+    key =>
+    {
+      if (!key)
+      {
+        apiKey = Math.random().toFixed(10).slice(2);
+        AsyncStorage.setItem('@timetable:apikey', apiKey);
+      }
+      else
+      {
+        apiKey = key;
+      }
+    }
+  );
+}
+
+
+// list
+
 function getListsFromStorage()
 {
   AsyncStorage.getItem('@timetable:searchList')
@@ -23,7 +46,126 @@ function getListsFromStorage()
   );
 }
 
-export function getSearchHistory()
+
+const lastSync = AsyncStorage.getItem('@timetable:lastSync')
+  .then(_tsp =>
+  {
+    let tsp = +_tsp || 0;
+    return tsp;
+  });
+
+function loadLocal()
+{
+  Store.dispatch(
+    ActionCreators.changeSyncStatus('in progress')
+  );
+
+  lastSync.then(
+    tsp =>
+    {
+      if (!tsp)
+      {
+        sync(tsp);
+      }
+      else
+      {
+        // load list from memory
+        let syncing = false;
+        AsyncStorage.getItem('@timetable:list')
+        .then(
+          _list =>
+          {
+            let list;
+            try
+            {
+              list = JSON.parse(_list);
+            }
+            catch (err) {}
+
+            if (list)
+            {
+              Store.dispatch(
+                ActionCreators.loadSearchList(list)
+              );
+              cleanOutdatedHistory({list});
+            }
+            else if (!syncing)
+            { // smth wrong
+              sync(tsp);
+            }
+          }
+        )
+        // outdated, sync in parallel
+        if (Date.now() - tsp > config.SYNC_VALID_FOR)
+        {
+          sync(tsp);
+        }
+      }
+    }
+  );
+}
+
+
+function sync(syncTsp)
+{
+  if (Store.getState().connection)
+  {
+    fetch(`${config.BASE_URL}/${config.API_VERSION}/lists?tsp=${syncTsp}&apikey=${apiKey}`, {
+      method: 'GET'
+    })
+    .then(resp => resp.json())
+    .then(
+      data =>
+      {
+        let list =
+          []
+          .concat(
+            (data.groups || []).map(e => ({
+              text: e,
+              id: e
+            }))
+          )
+          .concat(
+            (data.places || []).map(e => ({
+              text: e,
+              id: e
+            }))
+          )
+          .concat(
+            (data.teachers || []).map(e => ({
+              text: e.name,
+              id: e.teacherId
+            }))
+          );
+
+        Store.dispatch(
+          ActionCreators.loadSearchList(list)
+        );
+        cleanOutdatedHistory({list});
+
+        Store.dispatch(
+          ActionCreators.changeSyncStatus('loaded')
+        );
+
+        AsyncStorage.setItem('@timetable:list', JSON.stringify(list));
+        AsyncStorage.setItem('@timetable:lastSync', JSON.stringify(data.tsp));
+      }
+    )
+    .catch(() =>
+    {
+      sync(0);
+    });
+  }
+  else
+  {
+    Store.dispatch(
+      ActionCreators.changeSyncStatus('error')
+    );
+  }
+}
+
+// history
+function getSearchHistory()
 {
   AsyncStorage.getItem('@timetable:searchHistory')
   .then(
@@ -32,103 +174,48 @@ export function getSearchHistory()
       Store.dispatch(
         ActionCreators.loadSearchHistory(history || [])
       );
+      cleanOutdatedHistory({history});
     }
   );
 }
 
-
-const lastSync = AsyncStorage.getItem('@timetable:lastSync')
-  .then(_data =>
-  {
-    let data;
-    try
-    {
-      data = JSON.parse(_data);
-    }
-    catch (err)
-    { // do nothing
-    }
-    return Object.assign({
-      list: 0,
-      groups: 0,
-      teachers: 0,
-      places: 0
-    }, data || {});
-  });
-
-
-function sync()
+/**
+ * will be called only with one of the argument
+ * one that has just been received,
+ * but will be completed only once
+ */
+function cleanOutdatedHistory({history, list})
 {
-  lastSync.then(
-    syncTsp =>
-    {
-      if (Store.getState().connection)
-      {
-        Store.dispatch(
-          ActionCreators.changeSyncStatus('in progress')
-        );
-        // perform sync
-        Promise.all([
-          fetch(`${config.BASE_URL}/${config.API_VERSION}/lists?tsp=${syncTsp.list}`, {
-            method: 'GET'
-          })
-          .then(resp => resp.json())
-          .then(
-            data =>
-            {
-              let list =
-                []
-                .concat(
-                  (data.groups || []).map(e => ({
-                    text: e,
-                    id: e
-                  }))
-                )
-                .concat(
-                  (data.places || []).map(e => ({
-                    text: e,
-                    id: e
-                  }))
-                )
-                .concat(
-                  (data.teachers || []).map(e => ({
-                    text: e.name,
-                    id: e.teacherId
-                  }))
-                );
+  if (history)
+  {
+    list = Store.getState().searchList;
+  }
+  else
+  {
+    history = Store.getState().searchHistory;
+  }
 
-              Store.dispatch(
-                ActionCreators.loadSearchList(list)
-              );
-            }
-          )
-        ])
-        .then(
-          () =>
-          {
-            // debugger;
-            Store.dispatch(
-              ActionCreators.changeSyncStatus('loaded')
-            );
-            AsyncStorage.setItem('@timetable:lastSync', JSON.stringify(syncTsp));
-          }
-        )
-      }
-      else
-      {
-        Store.dispatch(
-          ActionCreators.changeSyncStatus('error')
-        );
-      }
-    }
-  );
+  if (list && history)
+  {
+    let keys = list.reduce(
+      (acc, e) => acc.add(e.id),
+      new Set()
+    );
+
+    history = history.filter(e => keys.has(e.id));
+    Store.dispatch(
+      ActionCreators.loadSearchHistory(history)
+    );
+  }
 }
 
+
+// connection
 
 NetInfo.addEventListener('change', checkConnection);
 function checkConnection()
 {
-  NetInfo.isConnected.fetch().then(
+  return NetInfo.isConnected.fetch().then(
     connected =>
     {
       Store.dispatch(
@@ -136,13 +223,22 @@ function checkConnection()
       );
       if (connected && Store.getState().syncStatus === 'error')
       {
+        Store.dispatch(
+          ActionCreators.changeSyncStatus('in progress')
+        );
         sync();
       }
     }
   );
 }
 
-checkConnection();
+
+
+
+// init
+
+getAPIKey()
+.then(checkConnection)
+.then(loadLocal);
 getListsFromStorage();
 getSearchHistory();
-sync();

@@ -32,28 +32,33 @@ export class App extends React.Component {
     this.state =
     {
       mode: 'loading',
-      history: null,
-      list: null
+      displayedList: []
     };
 
-    this.fetchListAndHistory = this.fetchListAndHistory.bind(this);
+    this.history = null;
+    this.list = null;
+
+    this.query  = '';
+
+    this.fetchListAndHistory = this._fetchListAndHistory.bind(this);
+    this.report = this._report.bind(this);
   }
 
-  fetchListAndHistory()
+  _fetchListAndHistory()
   {
     let newState;
     let history = Store.getState().searchHistory;
     if (history && this.history !== history)
     {
       this.history = history;
-      newState = Object.assign(newState || {}, {history});
+      this._report(this.query);
     }
 
     let list = Store.getState().searchList;
     if (list && this.list !== list)
     {
       this.list = list;
-      newState = Object.assign(newState || {}, {list});
+      this._report(this.query);
     }
 
     if (Store.getState().syncStatus === 'error' && !this.list)
@@ -82,6 +87,35 @@ export class App extends React.Component {
 
   }
 
+  _report(val)
+  {
+    this.query = val;
+    let displayedList;
+    if (val.length === 0)
+    {
+      displayedList = this.history || [];
+    }
+    else if (this.list)
+    {
+      let reg;
+      try
+      {
+        reg = new RegExp(val);
+      }
+      catch (err)
+      {
+        reg = new RegExp(val.split('').map(e => '\\' + e).join(''));
+      }
+      displayedList = this.list.filter(
+        e => reg.test(e.text.toLowerCase())
+      );
+    }
+    if (displayedList)
+    {
+      this.setState({displayedList});
+    }
+  }
+
 
   render() {
     let view;
@@ -91,15 +125,15 @@ export class App extends React.Component {
       case 'loading':
         view =
           <View style={styles.container}>
-            <Spinner visible={true} textContent={"Загружаю расписание..."} textStyle={styles.spinnerStyle} />
+            <Spinner visible={true} textContent={"Синхронизация..."} textStyle={styles.spinnerStyle} />
           </View>;
       break;
 
       case 'loaded':
         view =
           <View style={styles.container}>
-            <Search />
-            <List />
+            <Search report={this.report} />
+            <List items={this.state.displayedList}/>
           </View>;
       break;
 

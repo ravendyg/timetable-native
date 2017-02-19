@@ -21,8 +21,8 @@ const styles = StyleSheet.create({
     height: 50,
     fontSize: 16,
     flex: 1,
-    marginLeft:  10,
-    marginRight: 10,
+    marginLeft:  16,
+    marginRight: 16,
   }
 });
 
@@ -36,12 +36,12 @@ export class Search extends React.Component
     {
     };
 
-    this.onChange = this.onChange.bind(this);
+    this.onChange = this._onChange.bind(this);
   }
 
-  onChange(val)
+  _onChange(val)
   {
-
+    this.props.report(val);
   }
 
 
@@ -61,6 +61,7 @@ export class Search extends React.Component
       <View style={styles.container}>
         <TextInput
           style={styles.input}
+          onChangeText={this.onChange}
           placeholder={'Группа, фамилия, аудитория'}
         />
       </View>
