@@ -8,7 +8,6 @@ const Actions =
   SYNC_STATUS_CHANGE: 4,
   ADD_ITEM: 5,
   REMOVE_ITEM: 6,
-  NAVIGATION: 7
 };
 
 const ActionCreators = {
@@ -59,15 +58,6 @@ const ActionCreators = {
       payload: id
     }
   },
-
-  navigation(page)
-  {
-    return {
-      type: Actions.NAVIGATION,
-      payload: page
-    }
-  }
-
 };
 
 module.exports = { Actions, ActionCreators };

@@ -17,7 +17,8 @@ import { List } from './list';
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
+    backgroundColor: '#FFFFFF'
   },
   spinnerStyle: {
     color: '#1A237E'
@@ -33,7 +34,6 @@ export class Main extends React.Component {
     {
       mode: 'loading',
       displayedList: [],
-      opacity: 1
     };
 
     this.history = null;
@@ -72,11 +72,6 @@ export class Main extends React.Component {
       newState = Object.assign(newState || {}, {mode: 'loaded'});
     }
 
-    if (Store.getState().page === 0 && this.state.opacity === 0)
-    {
-      newState = Object.assign(newState || {}, {opacity: 1});
-    }
-
     if (newState)
     {
       this.setState(newState);
@@ -85,13 +80,13 @@ export class Main extends React.Component {
 
   componentDidMount()
   {
-    Store.subscribe(this.storeSubscriber);
+    this.unsub = Store.subscribe(this.storeSubscriber);
     this.storeSubscriber();
   }
 
   componentWillUnmount()
   {
-
+    this.unsub();
   }
 
   _report(val)
@@ -125,26 +120,23 @@ export class Main extends React.Component {
 
   _onForward(type, index)
   {
-    this.setState({opacity: 0});
     this.props.onForward(type, index);
   }
 
-
   render() {
     let view;
-    let containerStyle = {opacity: this.state.opacity, flex: 1};
     switch (this.state.mode)
     {
       case 'loading':
         view =
-          <View style={containerStyle}>
+          <View style={styles.container}>
             <Spinner visible={true} textContent={"Синхронизация..."} textStyle={styles.spinnerStyle} />
           </View>;
       break;
 
       case 'loaded':
         view =
-          <View style={containerStyle}>
+          <View style={styles.container}>
             <Search report={this.report} />
             <List items={this.state.displayedList} onForward={this.onForward}/>
           </View>;
@@ -152,7 +144,7 @@ export class Main extends React.Component {
 
       default:
         view =
-          <View style={containerStyle}>
+          <View style={styles.container}>
             <Text>Error</Text>
           </View>;
     };

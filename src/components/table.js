@@ -13,7 +13,8 @@ import { Store } from '../store';
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
+    backgroundColor: '#FFFFFF'
   },
   spinnerStyle: {
     color: '#1A237E'

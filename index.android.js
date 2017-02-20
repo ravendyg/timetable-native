@@ -28,13 +28,6 @@ export default class timetable extends Component
     BackAndroid.addEventListener('hardwareBackPress', () => {
       if (navigator && navigator.getCurrentRoutes().length > 1) {
         navigator.pop();
-
-        if (navigator.getCurrentRoutes().length === 2)
-        {
-          Store.dispatch(
-            ActionCreators.navigation(0)
-          );
-        }
         return true;
       }
       return false;
@@ -55,9 +48,6 @@ export default class timetable extends Component
               navigator.push({
                 page: 'table', type, index
               });
-              Store.dispatch(
-                ActionCreators.navigation(1)
-              );
             };
             switch (route.page)
             {

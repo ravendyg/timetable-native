@@ -5,7 +5,7 @@ import { Actions } from './action-creators';
 
 const app =
   combineReducers({
-    searchList, searchHistory, connection, syncStatus, data, page
+    searchList, searchHistory, connection, syncStatus, data
   });
 
 const Store = createStore(app);
@@ -80,17 +80,6 @@ function data(state = {}, action)
 
     default:
       return state;
-  }
-}
-
-function page(state = 0, action)
-{
-  switch (action.type)
-  {
-    case Actions.NAVIGATION:
-      return action.payload;
-    default:
-      return state
   }
 }
 

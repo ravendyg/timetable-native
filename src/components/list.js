@@ -4,15 +4,17 @@ import React, { Component } from 'react';
 import {
   StyleSheet,
   View,
-  Text
+  Text,
+  ListView
 } from 'react-native';
 import { ListItem } from './list-item';
+
+import dismissKeyboard from 'dismissKeyboard';
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'flex-start',
-    // alignItems: 'center'
+    // justifyContent: 'flex-start',
   },
 });
 
@@ -21,14 +23,14 @@ export class List extends React.Component {
   constructor() {
     super();
 
-    this.state =
-    {
-    };
+    this.ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1.text !== r2.text})
   }
 
   clickHandler(e)
   {
-    this.props.onForward(e.type, e.id);
+    dismissKeyboard();
+    // timeout to show click
+    setTimeout(() => this.props.onForward(e.type, e.id));
   }
 
 
@@ -45,7 +47,26 @@ export class List extends React.Component {
   render()
   {
     return (
-      <View style={styles.container}>
+      <ListView
+        style={styles.container}
+        dataSource={this.ds.cloneWithRows(this.props.items || [])}
+        enableEmptySections={true}
+        renderRow={
+          e => <ListItem
+                item={e}
+                key={e.id}
+                clickHandler={this.clickHandler.bind(this, e)}
+              />
+        }
+      />
+    );
+  }
+}
+
+
+{/*<ListView
+        style={styles.container}
+      >
         {this.props.items && this.props.items.map(
           e => <ListItem
                 item={e}
@@ -53,7 +74,4 @@ export class List extends React.Component {
                 clickHandler={this.clickHandler.bind(this, e)}
               />
         )}
-      </View>
-    );
-  }
-}
+      </ListView>*/}
