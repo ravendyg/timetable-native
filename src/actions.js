@@ -29,7 +29,6 @@ function getAPIKey()
 
 
 // list
-
 function getListsFromStorage()
 {
   AsyncStorage.getItem('@timetable:searchList')
@@ -82,7 +81,7 @@ function loadLocal()
             }
             catch (err) {}
 
-            if (list)
+            if (list && Store.getState().searchList === null)
             {
               Store.dispatch(
                 ActionCreators.loadSearchList(list)
@@ -172,9 +171,15 @@ function getSearchHistory()
 {
   AsyncStorage.getItem('@timetable:searchHistory')
   .then(
-    history =>
+    _history =>
     {
-      history = history || [];
+      let history = [];
+      try
+      {
+        history = JSON.parse(_history);
+      }
+      catch (err)
+      {}
       Store.dispatch(
         ActionCreators.loadSearchHistory(history)
       );
@@ -188,7 +193,6 @@ function syncHistoryItems(history)
 {
   for (let item of history)
   {
-    debugger;
     fetch(`${config.BASE_URL}/${config.API_VERSION}/sync/${item.type}s?tsp=${item.tsp}&id=${item.id}&apikey=${apiKey}`, {
       method: 'GET'
     })
@@ -196,7 +200,6 @@ function syncHistoryItems(history)
     .then(
       data =>
       {
-        debugger;
         if (data && data.info.length > 0)
         {
           let _item = data.info[0];
@@ -213,6 +216,38 @@ function syncHistoryItems(history)
       debugger;
     });
   }
+}
+
+export function pushItemIntoHistory(item)
+{
+  let history = Store.getState().searchHistory || [];
+  for (let i = 0; i < history.length; i++)
+  {
+    if (history[i].id === item.id)
+    {
+      if (i > 0)
+      {
+        let newHistory = [item].concat(history.slice(0, i)).concat(history.slice(i));
+        storeNewHistory(newHistory);
+      }
+      return;
+    }
+  }
+  let newHistory =
+    [item].concat(
+      history.length === config.HISTORY_LENGTH
+        ? history.slice(0, history.length - 1)
+        : history
+    );
+  storeNewHistory(newHistory);
+}
+
+function storeNewHistory(newHistory)
+{
+  AsyncStorage.setItem('@timetable:searchHistory', JSON.stringify(newHistory));
+  Store.dispatch(
+    ActionCreators.loadSearchHistory(newHistory)
+  );
 }
 
 

@@ -11,6 +11,8 @@ import { ListItem } from './list-item';
 
 import dismissKeyboard from 'dismissKeyboard';
 
+import { pushItemIntoHistory } from '../actions';
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -29,6 +31,7 @@ export class List extends React.Component {
   clickHandler(e)
   {
     dismissKeyboard();
+    pushItemIntoHistory(e);
     // timeout to show click
     setTimeout(() => this.props.onForward(e.type, e.id));
   }

@@ -63,11 +63,7 @@ export class Main extends React.Component {
       this._report(this.query);
     }
 
-    if (Store.getState().syncStatus === 'error' && !this.list)
-    { // no data, no connection
-      newState = Object.assign(newState || {}, {mode: 'error'});
-    }
-    else if (this.state.mode !== 'loaded' && this.list)
+    if (this.list)
     {
       newState = Object.assign(newState || {}, {mode: 'loaded'});
     }
@@ -118,6 +114,11 @@ export class Main extends React.Component {
     }
   }
 
+  onClick()
+  {
+    console.log('click');
+  }
+
   _onForward(type, index)
   {
     this.props.onForward(type, index);
@@ -127,26 +128,20 @@ export class Main extends React.Component {
     let view;
     switch (this.state.mode)
     {
-      case 'loading':
-        view =
-          <View style={styles.container}>
-            <Spinner visible={true} textContent={"Синхронизация..."} textStyle={styles.spinnerStyle} />
-          </View>;
-      break;
-
       case 'loaded':
         view =
           <View style={styles.container}>
-            <Search report={this.report} />
+            <Search report={this.report} onPress={this.onClick}/>
             <List items={this.state.displayedList} onForward={this.onForward}/>
           </View>;
       break;
 
       default:
         view =
-          <View style={styles.container}>
-            <Text>Error</Text>
+          <View style={styles.container} onClick={this.onClick}>
+            <Spinner visible={true} textContent={"Синхронизация..."} textStyle={styles.spinnerStyle} />
           </View>;
+      break;
     };
 
     return (
