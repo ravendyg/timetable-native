@@ -42,7 +42,7 @@ export class Main extends React.Component {
     this.query  = '';
 
     this.storeSubscriber = this._storeSubscriber.bind(this);
-    this.report = this._report.bind(this);
+    this.report = this._filter.bind(this);
     this.onForward = this._onForward.bind(this);
   }
 
@@ -53,14 +53,14 @@ export class Main extends React.Component {
     if (history && this.history !== history)
     {
       this.history = history;
-      this._report(this.query);
+      this._filter(this.query);
     }
 
     let list = Store.getState().searchList;
     if (list && this.list !== list)
     {
       this.list = list;
-      this._report(this.query);
+      this._filter(this.query);
     }
 
     if (this.list)
@@ -85,7 +85,7 @@ export class Main extends React.Component {
     this.unsub();
   }
 
-  _report(val)
+  _filter(val)
   {
     this.query = val;
     let displayedList;
@@ -119,9 +119,9 @@ export class Main extends React.Component {
     console.log('click');
   }
 
-  _onForward(type, index)
+  _onForward(item)
   {
-    this.props.onForward(type, index);
+    this.props.onForward(item);
   }
 
   render() {
@@ -131,14 +131,14 @@ export class Main extends React.Component {
       case 'loaded':
         view =
           <View style={styles.container}>
-            <Search report={this.report} onPress={this.onClick}/>
+            <Search report={this.report} />
             <List items={this.state.displayedList} onForward={this.onForward}/>
           </View>;
       break;
 
       default:
         view =
-          <View style={styles.container} onClick={this.onClick}>
+          <View style={styles.container}>
             <Spinner visible={true} textContent={"Синхронизация..."} textStyle={styles.spinnerStyle} />
           </View>;
       break;

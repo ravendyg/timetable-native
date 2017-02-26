@@ -42,17 +42,17 @@ export default class timetable extends Component
         renderScene={
           (route, navigator) =>
           {
-            let onForward = (type, index) =>
+            let onForward = (item) =>
             {
               const nextIndex = route.index++;
               navigator.push({
-                page: 'table', type, index
+                page: 'table', item
               });
             };
             switch (route.page)
             {
               case 'table':
-                return <Table type={route.type} index={route.index} />;
+                return <Table item={route.item} />;
               default:
                 return <Main onForward={onForward} />;
             }

@@ -74,12 +74,7 @@ function loadLocal()
         .then(
           _list =>
           {
-            let list;
-            try
-            {
-              list = JSON.parse(_list);
-            }
-            catch (err) {}
+            let list = parseAsync(_list);
 
             if (list && Store.getState().searchList === null)
             {
@@ -173,13 +168,7 @@ function getSearchHistory()
   .then(
     _history =>
     {
-      let history = [];
-      try
-      {
-        history = JSON.parse(_history);
-      }
-      catch (err)
-      {}
+      let history = parseAsync(_history);
       Store.dispatch(
         ActionCreators.loadSearchHistory(history)
       );
@@ -193,41 +182,35 @@ function syncHistoryItems(history)
 {
   for (let item of history)
   {
-    fetch(`${config.BASE_URL}/${config.API_VERSION}/sync/${item.type}s?tsp=${item.tsp}&id=${item.id}&apikey=${apiKey}`, {
-      method: 'GET'
-    })
-    .then(resp => resp.json())
+    fetchInfoFromServer(Object.assign({}, {tsp: 0}, item))
     .then(
       data =>
       {
-        if (data && data.info.length > 0)
+        if (data && data.tsp && data.tsp !== item.tsp)
         {
-          let _item = data.info[0];
-          _item.type = item.type;
-          Store.dispatch(
-            ActionCreators.addItem(_item, item[item.type + 'Id'])
-          );
-          AsyncStorage.setItem('@timetable:item:' + item[item.type + 'Id'], JSON.stringify(_item));
+          item.tsp = data.tsp;
+          pushItemIntoHistory(item, true);
         }
       }
     )
-    .catch(err =>
-    {
-      debugger;
-    });
   }
 }
 
-export function pushItemIntoHistory(item)
+export function pushItemIntoHistory(item, replace)
 {
   let history = Store.getState().searchHistory || [];
   for (let i = 0; i < history.length; i++)
   {
     if (history[i].id === item.id)
     {
-      if (i > 0)
+      if (replace)
       {
-        let newHistory = [item].concat(history.slice(0, i)).concat(history.slice(i));
+        let newHistory = history.slice(0, i).concat([item]).concat(history.slice(i + 1));
+        storeNewHistory(newHistory);
+      }
+      else if (i > 0)
+      {
+        let newHistory = [item].concat(history.slice(0, i)).concat(history.slice(i + 1));
         storeNewHistory(newHistory);
       }
       return;
@@ -241,15 +224,6 @@ export function pushItemIntoHistory(item)
     );
   storeNewHistory(newHistory);
 }
-
-function storeNewHistory(newHistory)
-{
-  AsyncStorage.setItem('@timetable:searchHistory', JSON.stringify(newHistory));
-  Store.dispatch(
-    ActionCreators.loadSearchHistory(newHistory)
-  );
-}
-
 
 /**
  * will be called only with one of the argument
@@ -275,10 +249,16 @@ function cleanOutdatedHistory({history, list})
     );
 
     history = history.filter(e => keys.has(e.id));
-    Store.dispatch(
-      ActionCreators.loadSearchHistory(history)
-    );
+    storeNewHistory(history);
   }
+}
+
+function storeNewHistory(newHistory)
+{
+  AsyncStorage.setItem('@timetable:searchHistory', JSON.stringify(newHistory));
+  Store.dispatch(
+    ActionCreators.loadSearchHistory(newHistory)
+  );
 }
 
 
@@ -304,6 +284,116 @@ function checkConnection()
   );
 }
 
+// data
+export function fetchInfo(item)
+{
+  let infoInStore  = Store.getState().data[item.id];
+  if (isValidInfo(infoInStore))
+  {
+    return;
+  }
+
+  AsyncStorage.getItem('@timetable:item:' + item.id)
+  .then(
+    _info =>
+    {
+      let info = parseAsync(_info);
+      if (isValidInfo(info))
+      {
+        Store.dispatch(
+          ActionCreators.addItem(info, item.id)
+        );
+      }
+      else
+      {
+        fetchInfoFromServer(Object.assign({}, item, {tsp: info.refresh}))
+      }
+    }
+  )
+  .catch(
+    () =>
+    {
+      fetchInfoFromServer(Object.assign({}, item, {tsp: 0}));
+    }
+  );
+}
+
+function isValidInfo(info)
+{
+  return info && info.refresh > Date.now() - config.SYNC_VALID_FOR
+}
+
+function fetchInfoFromServer({id, type, tsp})
+{
+  return fetch(`${config.BASE_URL}/${config.API_VERSION}/sync/${type}s?tsp=${tsp}&id=${id}&apikey=${apiKey}`, {
+    method: 'GET'
+  })
+  .then(resp => resp.json())
+  .then(
+    data =>
+    {
+      if (data && data.info.length > 0)
+      {
+        let item = data.info[0];
+        item.type = type;
+
+        item = transforItemToReadableForm(item);
+
+        Store.dispatch(
+          ActionCreators.addItem(item, id)
+        );
+
+        AsyncStorage.setItem('@timetable:item:' + id, JSON.stringify(item));
+        return item;
+      }
+      return null;
+    }
+  )
+  .catch(err =>
+  {
+    console.error(err);
+  });
+}
+
+/**
+ * add refresh timestamp
+ * convert event into an array
+ * populate empty parts
+ */
+function transforItemToReadableForm(_item)
+{
+  let item = Object.assign({}, _item);
+  item.refresh = Date.now();
+  let evName = _item.type + 'Events';
+  let days = [];
+  for (let day = 1; day < 7; day++)
+  {
+    let _temp = {
+      day: config.DAYS[day - 1],
+      _count: 0,
+      events: []
+    };
+    for (let bell of config.BELLS)
+    {
+      let lessons = item[evName][day + '|' + bell.short];
+      let event = {
+        bell,
+        lessons,
+        open: false
+      };
+      _temp.events.push(event);
+      if (lessons)
+      {
+        _temp._count++;
+      }
+    }
+    days.push(_temp);
+  }
+  item.days = days;
+  delete item[evName];
+
+  return item;
+}
 
 
 
@@ -314,3 +404,19 @@ getAPIKey()
 .then(loadLocal);
 getListsFromStorage();
 getSearchHistory();
+
+
+// helpers
+function parseAsync(smth)
+{
+  let out;
+  try
+  {
+    out = JSON.parse(smth);
+  }
+  catch (err)
+  {
+    out = null;
+  }
+  return out;
+}

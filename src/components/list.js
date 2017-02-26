@@ -25,7 +25,7 @@ export class List extends React.Component {
   constructor() {
     super();
 
-    this.ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1.text !== r2.text})
+    this.ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1.text !== r2.text});
   }
 
   clickHandler(e)
@@ -33,7 +33,7 @@ export class List extends React.Component {
     dismissKeyboard();
     pushItemIntoHistory(e);
     // timeout to show click
-    setTimeout(() => this.props.onForward(e.type, e.id));
+    setTimeout(() => this.props.onForward(e));
   }
 
 
